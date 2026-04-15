@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hey Amigo AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-layout">
+
+        <aside class="sidebar">
+            <h2 class="logo">AI Learning</h2>
+            <ul class="nav-links">
+                <li>Dashboard</li>
+                <li>New Note</li>
+                <li>Saved Notes</li>
+                <li>Explain Concepts</li>
+                <li>AI Friend</li>
+                <li>Analysis</li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <h1>AI Learning Companion</h1>
+
+            <div class="card">
+                <h2>Study Timetable</h2>
+
+                <form action="/add-timetable" method="POST" class="timetable-form">
+                    <input type="text" name="subject" placeholder="Subject (Java, SQL...)" required>
+                    <input type="text" name="task" placeholder="Task (Practice joins, OOP...)" required>
+                    <input type="time" name="reminder_time" required>
+
+                    <label class="checkbox-row">
+                        <input type="checkbox" name="repeat_daily">
+                        Repeat Daily
+                    </label>
+
+                    <button type="submit">Add Reminder</button>
+                </form>
+
+             <div class="output-box" id="timetable_box">
+    {% if timetable %}
+        {% for item in timetable %}
+            <div class="timetable-item status-{{ item['status'] }}">
+                <p><strong>{{ item['subject'] }}</strong> - {{ item['task'] }}</p>
+                <small>Time: {{ item['reminder_time'] }}</small><br>
+                <small>Status: {{ item['status'] }}</small><br>
+
+                {% if item['status'] != 'done' %}
+                    <button type="button" class="done-btn" data-id="{{ item['id'] }}">
+                        Done
+                    </button>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No timetable added yet.</p>
+    {% endif %}
+</div>
+              </div>
+
+            <div class="card">
+                <h2>Speech to Text & Correction</h2>
+
+                <p id="status">Ready</p>
+
+                <div class="chat-input-row">
+                    <button type="button" onclick="startRecording()">Start Recording</button>
+                    <button type="button" onclick="stopRecording()">Stop Recording</button>
+                    <button type="button" onclick="correctText()">Correct Text</button>
+                    <button type="button" onclick="showClickableWords()">Show Clickable Words</button>
+                </div>
+
+                <textarea id="raw_text" rows="6" placeholder="Your speech text will appear here..."></textarea>
+
+                <form action="/add" method="POST" onsubmit="copyRawText()">
+                    <input type="hidden" id="hiddenRawText" name="raw_text">
+                    <button type="submit">Save Note</button>
+                </form>
+
+                <div class="output-box" id="corrected_output">
+                    Corrected text will appear here.
+                </div>
+
+                <div class="output-box" id="clickable_words_box">
+                    Clickable words will appear here.
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Saved Notes</h2>
+                {% if notes %}
+                    {% for note in notes %}
+                        <div class="note-card">
+                            <p><strong>Raw:</strong> {{ note['raw_text'] }}</p>
+                            <p><strong>Corrected:</strong> {{ note['corrected_text'] }}</p>
+                            <small>{{ note['created_at'] }}</small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No notes saved yet.</p>
+                {% endif %}
+            </div>
+        </main>
+
+        <section class="right-panel">
+            <div class="card">
+                <h2>Concept Explanation</h2>
+                <div id="explanation_box" class="output-box">
+                    <strong>Concept explanation will appear here.</strong>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>AI Suggestions</h2>
+                <div class="output-box">
+                    {% if suggestions %}
+                        {% for suggestion in suggestions %}
+                            <p>👉 {{ suggestion }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <p>No suggestions available yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+          
+            <div class="card">
+                <h2>AI Study Friend</h2>
+                <div id="chat_box" class="chat-box"></div>
+                <div class="chat-input-row">
+                    <input type="text" id="chat_input" placeholder="Ask something...">
+                    <button type="button" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+            <div class="card">
+    <h2>Smart Timetable Suggestions</h2>
+    <div class="output-box">
+        {% if ai_timetable_suggestions %}
+            {% for item in ai_timetable_suggestions %}
+                <p>👉 {{ item }}</p>
+            {% endfor %}
+        {% else %}
+            <p>No smart suggestions yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+            <div class="card">
+                <h2>Learning Analysis</h2>
+                <div class="output-box">
+                    {% if analysis %}
+                        {% for topic, count in analysis.items() %}
+                            <p><strong>{{ topic }}:</strong> {{ count }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <p>No analysis available yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </div>
+   <div class="card">
+    <h2>Auto Timetable Generator</h2>
+
+    <form action="/generate-auto-timetable" method="POST" class="timetable-form">
+        <input type="time" name="start_time" required>
+        <input type="time" name="end_time" required>
+        <input type="number" name="session_count" min="1" max="8" placeholder="Number of sessions" required>
+        <button type="submit">Generate Study Plan</button>
+    </form>
+
+    <div class="output-box">
+        {% if generated_plan %}
+            <form action="/save-generated-plan" method="POST">
+                {% for item in generated_plan %}
+                    <div class="timetable-item">
+                        <p><strong>{{ item.subject }}</strong> - {{ item.task }}</p>
+                        <small>Time: {{ item.reminder_time }}</small>
+
+                        <input type="hidden" name="subject" value="{{ item.subject }}">
+                        <input type="hidden" name="task" value="{{ item.task }}">
+                        <input type="hidden" name="reminder_time" value="{{ item.reminder_time }}">
+                    </div>
+                {% endfor %}
+                <button type="submit">Save Generated Plan</button>
+            </form>
+        {% else %}
+            <p>No auto-generated plan yet.</p>
+        {% endif %}
+    </div>
+</div>
+    <div class="output-box">
+        {% if generated_plan %}
+            <form action="/save-generated-plan" method="POST">
+                {% for item in generated_plan %}
+                    <div class="timetable-item">
+                        <p><strong>{{ item.subject }}</strong> - {{ item.task }}</p>
+                        <small>Time: {{ item.reminder_time }}</small>
+
+                        <input type="hidden" name="subject" value="{{ item.subject }}">
+                        <input type="hidden" name="task" value="{{ item.task }}">
+                        <input type="hidden" name="reminder_time" value="{{ item.reminder_time }}">
+                    </div>
+                {% endfor %}
+                <button type="submit">Save Generated Plan</button>
+            </form>
+        {% else %}
+            <p>No auto-generated plan yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+    <script>
+        let shownReminders = new Set();
+        let mediaRecorder = null;
+        let audioChunks = [];
+
+        function requestNotificationPermission() {
+            if ("Notification" in window && Notification.permission !== "granted") {
+                Notification.requestPermission();
+            }
+        }
+        document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("done-btn")) {
+        const taskId = e.target.getAttribute("data-id");
+        markTaskDone(taskId);
+    }
+});
+
+        async function checkTimetableReminders() {
+            try {
+                const response = await fetch("/get-timetable");
+                const timetable = await response.json();
+
+                const now = new Date();
+                const currentHours = String(now.getHours()).padStart(2, "0");
+                const currentMinutes = String(now.getMinutes()).padStart(2, "0");
+                const currentTime = `${currentHours}:${currentMinutes}`;
+
+                timetable.forEach(item => {
+                    const reminderKey = `${item.id}-${currentTime}`;
+
+                    if (
+                        item.reminder_time === currentTime &&
+                        item.status === "pending" &&
+                        !shownReminders.has(reminderKey)
+                    ) {
+                        shownReminders.add(reminderKey);
+
+                        alert(item.message);
+
+                        if ("Notification" in window && Notification.permission === "granted") {
+                            new Notification("AI Learning Reminder", {
+                                body: item.message
+                            });
+                        }
+                    }
+                });
+            } catch (error) {
+                console.log("Reminder error:", error);
+            }
+        }
+
+        async function resetDailyTasks() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+
+            if (hours === 0 && minutes === 0) {
+                try {
+                    await fetch("/reset-daily-tasks", {
+                        method: "POST"
+                    });
+                } catch (error) {
+                    console.log("Reset daily tasks error:", error);
+                }
+            }
+        }
+
+        requestNotificationPermission();
+        setInterval(checkTimetableReminders, 30000);
+        setInterval(resetDailyTasks, 60000);
+
+        async function startRecording() {
+            const statusEl = document.getElementById("status");
+            if (statusEl) statusEl.innerText = "Recording...";
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = async () => {
+                    if (statusEl) statusEl.innerText = "Processing audio...";
+
+                    try {
+                        const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || "audio/webm" });
+                        const formData = new FormData();
+                        formData.append("audio", audioBlob, "recording.webm");
+
+                        const response = await fetch("/speech-to-text", {
+                            method: "POST",
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            const rawTextEl = document.getElementById("raw_text");
+                            if (rawTextEl) rawTextEl.value = result.text;
+                            if (statusEl) statusEl.innerText = "Speech converted to text successfully";
+                        } else {
+                            if (statusEl) statusEl.innerText = "Error: " + result.error;
+                        }
+                    } catch (error) {
+                        if (statusEl) statusEl.innerText = "Error processing audio";
+                        console.log(error);
+                    }
+                };
+
+                mediaRecorder.start();
+            } catch (error) {
+                if (statusEl) statusEl.innerText = "Microphone access denied or not available";
+                console.log(error);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                mediaRecorder.stop();
+            }
+        }
+
+        async function correctText() {
+            const rawTextEl = document.getElementById("raw_text");
+            if (!rawTextEl) return;
+
+            const rawText = rawTextEl.value.trim();
+            if (!rawText) return;
+
+            try {
+                const response = await fetch("/correct", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ text: rawText })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const outputEl = document.getElementById("corrected_output");
+                    if (outputEl) outputEl.innerText = result.corrected_text;
+                }
+            } catch (error) {
+                console.log("Correction error:", error);
+            }
+        }
+
+        function copyRawText() {
+            const raw = document.getElementById("raw_text");
+            const hidden = document.getElementById("hiddenRawText");
+            if (raw && hidden) {
+                hidden.value = raw.value;
+            }
+        }
+
+        function showClickableWords() {
+            const rawTextEl = document.getElementById("raw_text");
+            const box = document.getElementById("clickable_words_box");
+            if (!rawTextEl || !box) return;
+
+            const rawText = rawTextEl.value.trim();
+            const words = rawText.split(/\s+/);
+            box.innerHTML = "";
+
+            words.forEach(word => {
+                const cleanWord = word.replace(/[.,!?]/g, "");
+                if (!cleanWord) return;
+
+                const span = document.createElement("span");
+                span.innerText = cleanWord + " ";
+                span.className = "clickable-word";
+                span.style.cursor = "pointer";
+                span.onclick = () => explainWord(cleanWord);
+                box.appendChild(span);
+            });
+        }
+
+        async function explainWord(word) {
+            try {
+                const response = await fetch("/explain", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ word: word })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+                    const box = document.getElementById("explanation_box");
+                    if (!box) return;
+
+                    box.innerHTML = `
+                        <h3>${data.title}</h3>
+                        <p><strong>Meaning:</strong> ${data.meaning}</p>
+                        <p><strong>Explanation:</strong> ${data.explanation}</p>
+                        <p><strong>Example:</strong> ${data.example}</p>
+                        <p><strong>When to use:</strong> ${data.use_case}</p>
+                    `;
+                }
+            } catch (error) {
+                console.log("Explain error:", error);
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById("chat_input");
+            const chatBox = document.getElementById("chat_box");
+            if (!input || !chatBox) return;
+
+            const message = input.value.trim();
+            if (!message) return;
+
+            chatBox.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const result = await response.json();
+                chatBox.innerHTML += `<p><strong>AI:</strong> ${result.reply}</p>`;
+            } catch (error) {
+                chatBox.innerHTML += `<p><strong>AI:</strong> Error getting reply.</p>`;
+                console.log("Chat error:", error);
+            }
+
+            input.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function markTaskDone(id) {
+            try {
+                const response = await fetch(`/mark-task-done/${id}`, {
+                    method: "POST"
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    window.location.reload();
+                }
+            } catch (e) {
+                console.log("Error marking task done:", e);
+            }
+        }
+    </script>
+</body>
+</html>

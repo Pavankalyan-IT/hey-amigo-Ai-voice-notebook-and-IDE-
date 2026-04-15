@@ -1,0 +1,249 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f7fb;
+    color: #222;
+}
+
+/* Layout */
+.app-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr 350px;
+    min-height: 100vh;
+}
+
+.sidebar {
+    background-color: #111827;
+    color: white;
+    padding: 24px 18px;
+}
+
+.logo {
+    font-size: 24px;
+    margin-bottom: 30px;
+}
+
+.nav-links {
+    list-style: none;
+}
+
+.nav-links li {
+    padding: 12px 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.nav-links li:hover {
+    background-color: #1f2937;
+}
+
+.main-content {
+    padding: 30px;
+}
+
+.right-panel {
+    padding: 30px 20px 30px 0;
+}
+
+/* Typography */
+h1 {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: #666;
+    margin-bottom: 24px;
+}
+
+/* Cards */
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+}
+
+.card h2 {
+    margin-bottom: 15px;
+    font-size: 22px;
+}
+
+/* Forms */
+textarea {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    resize: vertical;
+    font-size: 15px;
+    margin-bottom: 16px;
+}
+
+.timetable-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.timetable-form input {
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Buttons */
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+button {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button:hover {
+    background-color: #1d4ed8;
+}
+
+.save-btn {
+    margin-top: 10px;
+}
+
+/* Status text */
+.status-text {
+    margin: 10px 0 15px;
+    color: #444;
+}
+
+/* Output boxes */
+.output-box {
+    min-height: 80px;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px;
+    line-height: 1.6;
+}
+
+/* Notes */
+.note-card {
+    border-left: 4px solid #2563eb;
+    background-color: #f9fafb;
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+}
+
+/* Timetable */
+.timetable-item {
+    padding: 12px;
+    border-left: 4px solid #10b981;
+    background-color: #f9fafb;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.status-pending {
+    border-left-color: #f59e0b;
+}
+
+.status-done {
+    border-left-color: #10b981;
+}
+
+.status-missed {
+    border-left-color: #ef4444;
+}
+
+/* Clickable words */
+.clickable-word {
+    display: inline-block;
+    color: #2563eb;
+    cursor: pointer;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.clickable-word:hover {
+    text-decoration: underline;
+}
+
+/* Chat */
+.chat-box {
+    height: 220px;
+    overflow-y: auto;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+.chat-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.chat-input-row input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .app-layout {
+        grid-template-columns: 200px 1fr;
+    }
+
+    .right-panel {
+        grid-column: span 2;
+        padding: 0 30px 30px 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .app-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        display: none;
+    }
+
+    .main-content,
+    .right-panel {
+        padding: 20px;
+    }
+}
